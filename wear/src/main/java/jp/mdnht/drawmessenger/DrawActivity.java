@@ -3,11 +3,15 @@ package jp.mdnht.drawmessenger;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
+import android.view.SurfaceView;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 public class DrawActivity extends Activity {
 
-    private TextView mTextView;
+    private DrawSurfaceView drawSurfaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,7 +21,8 @@ public class DrawActivity extends Activity {
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
-                mTextView = (TextView) stub.findViewById(R.id.text);
+                drawSurfaceView = (DrawSurfaceView) stub.findViewById(R.id.drawSurfaceView);
+
             }
         });
     }
