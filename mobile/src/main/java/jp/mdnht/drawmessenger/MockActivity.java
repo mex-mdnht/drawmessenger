@@ -7,8 +7,11 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.util.Log;
@@ -16,21 +19,31 @@ import android.view.View;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.NotificationCompat.WearableExtender;
+import android.widget.ImageView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.data.FreezableUtils;
+import com.google.android.gms.wearable.Asset;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
-public class MockActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener, NodeApi.NodeListener {
+public class MockActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener, NodeApi.NodeListener, DataApi.DataListener {
 
     private static final String TAG = "MockActivity";
 
@@ -38,16 +51,19 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
     private static final int REQUEST_RESOLVE_ERROR = 1000;
 
     private static final String START_ACTIVITY_PATH = "/start-activity";
+    private static final String IMAGE_PATH = "/image";
+    private static final String IMAGE_KEY = "photo";
 
     //google api
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mock);
-
+        mHandler = new Handler();
 
 
          mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -163,6 +179,35 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         LOGD(TAG, "onPeerDisconnected: " + peer);
     }
 
+    @Override
+    public void onDataChanged(DataEventBuffer dataEvents) {
+        LOGD(TAG, "onDataChanged(): " + dataEvents);
+
+        final List<DataEvent> events = FreezableUtils.freezeIterable(dataEvents);
+        dataEvents.close();
+        for (DataEvent event : events) {
+            if (event.getType() == DataEvent.TYPE_CHANGED) {
+                String path = event.getDataItem().getUri().getPath();
+                if (IMAGE_PATH.equals(path)) {
+                    DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
+                    Asset photo = dataMapItem.getDataMap()
+                            .getAsset(IMAGE_KEY);
+                    final Bitmap bitmap = loadBitmapFromAsset(mGoogleApiClient, photo);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "Setting background image..");
+                            ImageView iv = (ImageView) findViewById(R.id.imageView);
+                            iv.setImageBitmap(bitmap);
+                        }
+                    });
+                } else {
+                    LOGD(TAG, "Unrecognized path: " + path);
+                }
+            }
+        }
+    }
+
     private class StartWearableActivityTask extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -208,7 +253,7 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         LOGD(TAG, "Google API Client was connected");
         mResolvingError = false;
         //mStartActivityBtn.setEnabled(true);
-       // Wearable.DataApi.addListener(mGoogleApiClient, this);
+        Wearable.DataApi.addListener(mGoogleApiClient, this);
         Wearable.MessageApi.addListener(mGoogleApiClient, this);
         Wearable.NodeApi.addListener(mGoogleApiClient, this);
     }
@@ -236,7 +281,7 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
             mResolvingError = false;
             //mStartActivityBtn.setEnabled(false);
             //mSendPhotoBtn.setEnabled(false);
-            //Wearable.DataApi.removeListener(mGoogleApiClient, this);
+            Wearable.DataApi.removeListener(mGoogleApiClient, this);
             Wearable.MessageApi.removeListener(mGoogleApiClient, this);
             Wearable.NodeApi.removeListener(mGoogleApiClient, this);
         }
@@ -258,5 +303,24 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         }
         LOGD(TAG,"nnnnnnodes2 gewt"+results.toString());
         return results;
+    }
+
+    /**
+     * Extracts {@link android.graphics.Bitmap} data from the
+     * {@link com.google.android.gms.wearable.Asset}
+     */
+    private Bitmap loadBitmapFromAsset(GoogleApiClient apiClient, Asset asset) {
+        if (asset == null) {
+            throw new IllegalArgumentException("Asset must be non-null");
+        }
+
+        InputStream assetInputStream = Wearable.DataApi.getFdForAsset(
+                apiClient, asset).await().getInputStream();
+
+        if (assetInputStream == null) {
+            Log.w(TAG, "Requested an unknown Asset.");
+            return null;
+        }
+        return BitmapFactory.decodeStream(assetInputStream);
     }
 }
