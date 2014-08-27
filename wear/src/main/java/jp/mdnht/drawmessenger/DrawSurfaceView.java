@@ -1,6 +1,7 @@
 package jp.mdnht.drawmessenger;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -23,6 +24,14 @@ public class DrawSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private boolean isDrawing = false;
     //private Thread looper;
 
+    private Canvas mCanvas;
+
+    public Bitmap getmBitmap() {
+        return mBitmap;
+    }
+
+    private Bitmap mBitmap;
+
     public DrawSurfaceView(Context context) {
         super(context);
         init();
@@ -30,6 +39,7 @@ public class DrawSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
     public DrawSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
         init();
     }
 
@@ -57,8 +67,14 @@ public class DrawSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
+
+        mBitmap = Bitmap.createBitmap(270, 270, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(mBitmap);
+
+
         Canvas canvas = surfaceHolder.lockCanvas();
         canvas.drawColor(Color.WHITE);
+        mCanvas.drawColor(Color.WHITE);
         path = new Path();
         paint = new Paint();
         paint.setColor(Color.RED);
@@ -124,7 +140,10 @@ public class DrawSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         Canvas canvas = holder.lockCanvas();
         //canvas.drawColor(Color.WHITE);
        // canvas.drawCircle(touchX, touchY, 3F, paint);
-        canvas.drawPath(path,paint);
+
+        mCanvas.drawPath(path, paint);
+        //canvas.drawPath(path,paint);
+        canvas.drawBitmap(mBitmap,0,0,null);
         holder.unlockCanvasAndPost(canvas);
     }
 

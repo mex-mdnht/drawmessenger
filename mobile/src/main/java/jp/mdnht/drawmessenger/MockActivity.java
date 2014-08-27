@@ -36,16 +36,30 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.parse.Parse;
+import com.parse.ParseAnalytics;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseInstallation;
+import com.parse.ParsePush;
+import com.parse.PushService;
+import com.parse.SaveCallback;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 public class MockActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener, NodeApi.NodeListener, DataApi.DataListener {
 
     private static final String TAG = "MockActivity";
+    private static final String PUSH_CHANNEL = "M5S";
 
     /** Request code for launching the Intent to resolve Google Play services errors. */
     private static final int REQUEST_RESOLVE_ERROR = 1000;
@@ -64,7 +78,11 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.activity_mock);
+
+
         mHandler = new Handler();
 
 
@@ -194,8 +212,17 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
                     DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
                     Asset photo = dataMapItem.getDataMap()
                             .getAsset(IMAGE_KEY);
+
                     final Bitmap bitmap = loadBitmapFromAsset(mGoogleApiClient, photo);
                     LOGD(TAG, bitmap.toString());
+
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] byteArray = stream.toByteArray();
+
+                    //save parse file
+                    saveImageFile(byteArray);
+
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -203,7 +230,7 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
                             ImageView iv = (ImageView) findViewById(R.id.imageView);
                             //
                             // iv.setImageResource(R.drawable.common_signin_btn_icon_dark);
-                            iv.setImageDrawable(new BitmapDrawable(getResources(),bitmap));
+                            iv.setImageBitmap(bitmap);
                         }
                     });
                 } else {
@@ -211,6 +238,36 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
                 }
             }
         }
+    }
+
+    private void saveImageFile(byte[] data)
+    {
+        final ParseFile file = new ParseFile("image.bmp",data);
+        file.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e != null)
+                {}
+                else{
+                    LOGD(TAG,file.getUrl());
+                    sendPush(file.getUrl());
+                }
+            }
+        });
+    }
+
+    private void sendPush(String url)
+    {
+        ParsePush push = new ParsePush();
+        push.setChannel(PUSH_CHANNEL);
+        JSONObject data = new JSONObject();
+        try {
+            data.put("url",url);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        push.setData(data);
+        push.sendInBackground();
     }
 
     private class StartWearableActivityTask extends AsyncTask<Void, Void, Void> {
@@ -326,6 +383,23 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
             Log.w(TAG, "Requested an unknown Asset.");
             return null;
         }
+
         return BitmapFactory.decodeStream(assetInputStream);
+    }
+
+    private InputStream extractStreamFromAsset(GoogleApiClient apiClient, Asset asset) {
+        if (asset == null) {
+            throw new IllegalArgumentException("Asset must be non-null");
+        }
+
+        InputStream assetInputStream = Wearable.DataApi.getFdForAsset(
+                apiClient, asset).await().getInputStream();
+
+        if (assetInputStream == null) {
+            Log.w(TAG, "Requested an unknown Asset.");
+            return null;
+        }
+
+        return assetInputStream;
     }
 }

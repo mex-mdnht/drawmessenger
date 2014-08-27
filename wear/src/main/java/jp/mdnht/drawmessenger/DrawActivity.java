@@ -100,28 +100,10 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
                 sendDataButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                       /* count += 1;
-                        LOGD(TAG, "Increment Count: " + count);
-                        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(COUNT_PATH);
-                        putDataMapRequest.getDataMap().putInt(COUNT_KEY, count);
-                        PutDataRequest request = putDataMapRequest.asPutDataRequest();
-                        LOGD(TAG, "Generating DataItem: " + request);
-                        if (!mGoogleApiClient.isConnected()) {
-                            return;
-                        }
-                        Wearable.DataApi.putDataItem(mGoogleApiClient, request)
-                                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-                                    @Override
-                                    public void onResult(DataApi.DataItemResult dataItemResult) {
-                                        if (!dataItemResult.getStatus().isSuccess()) {
-                                            Log.e(TAG, "ERROR: failed to putDataItem, status code: "
-                                                    + dataItemResult.getStatus().getStatusCode());
-                                        }
-                                    }
-                                });*/
+
                         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_plusone_medium_off_client);
-                        Asset asset= toAsset(makeBitmapFromSurfaceView());
-                        LOGD(TAG, "asset is:"+asset);
+                        Asset asset= toAsset(drawSurfaceView.getmBitmap());
+                        //Asset asset= toAsset(bitmap);
                         sendPhoto(asset);
                     }
                 });
@@ -154,27 +136,6 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
      * Sends the asset that was created form the photo we took by adding it to the Data Item store.
      */
     private void sendPhoto(Asset asset) {
-
-        /*PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(COUNT_PATH);
-        putDataMapRequest.getDataMap().putInt(COUNT_KEY, count++);
-        PutDataRequest request = putDataMapRequest.asPutDataRequest();
-
-
-        if (!mGoogleApiClient.isConnected()) {
-            return;
-        }
-        Wearable.DataApi.putDataItem(mGoogleApiClient, request)
-                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-                    @Override
-                    public void onResult(DataApi.DataItemResult dataItemResult) {
-                        if (!dataItemResult.getStatus().isSuccess()) {
-                            Log.e(TAG, "ERROR: failed to putDataItem, status code: "
-                                    + dataItemResult.getStatus().getStatusCode());
-                        }
-                    }
-                });*/
-
-
         PutDataMapRequest dataMapReq = PutDataMapRequest.create(IMAGE_PATH);
         dataMapReq.getDataMap().putAsset(IMAGE_KEY, asset);
         dataMapReq.getDataMap().putLong("time", new Date().getTime());
