@@ -3,6 +3,7 @@ package jp.mdnht.drawmessenger;
 import android.app.Activity;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -10,38 +11,55 @@ import android.os.Handler;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.data.FreezableUtils;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class DrawActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener {
+public class DrawActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener, NodeApi.NodeListener {
     private static  final String TAG = "DrawActivity";
 
     private static final String IMAGE_PATH = "/image";
     private static final String IMAGE_KEY = "photo";
+    private static final String COUNT_PATH = "/count";
+    private static final String COUNT_KEY = "count";
+    private int count = 0;
 
     private DrawSurfaceView drawSurfaceView;
     private ProgressBar progressBar;
+    private Button sendDataButton;
 
     private static final int EXIT_DELAY = 5000;
     private CountDownTimer timer = null;
@@ -72,10 +90,42 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
 
                     @Override
                     public void onFinish() {
-                        sendPhoto(toAsset(makeBitmapFromSurfaceView()));
+                       // sendPhoto(toAsset(makeBitmapFromSurfaceView()));
                     }
                 };
                 timer.start();
+
+
+                sendDataButton = (Button)findViewById(R.id.send_data_button);
+                sendDataButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                       /* count += 1;
+                        LOGD(TAG, "Increment Count: " + count);
+                        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(COUNT_PATH);
+                        putDataMapRequest.getDataMap().putInt(COUNT_KEY, count);
+                        PutDataRequest request = putDataMapRequest.asPutDataRequest();
+                        LOGD(TAG, "Generating DataItem: " + request);
+                        if (!mGoogleApiClient.isConnected()) {
+                            return;
+                        }
+                        Wearable.DataApi.putDataItem(mGoogleApiClient, request)
+                                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+                                    @Override
+                                    public void onResult(DataApi.DataItemResult dataItemResult) {
+                                        if (!dataItemResult.getStatus().isSuccess()) {
+                                            Log.e(TAG, "ERROR: failed to putDataItem, status code: "
+                                                    + dataItemResult.getStatus().getStatusCode());
+                                        }
+                                    }
+                                });*/
+                        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_plusone_medium_off_client);
+                        Asset asset= toAsset(makeBitmapFromSurfaceView());
+                        LOGD(TAG, "asset is:"+asset);
+                        sendPhoto(asset);
+                    }
+                });
+
             }
         });
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -104,15 +154,43 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
      * Sends the asset that was created form the photo we took by adding it to the Data Item store.
      */
     private void sendPhoto(Asset asset) {
-        PutDataMapRequest dataMap = PutDataMapRequest.create(IMAGE_PATH);
-        dataMap.getDataMap().putAsset(IMAGE_KEY, asset);
-        PutDataRequest request = dataMap.asPutDataRequest();
+
+        /*PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(COUNT_PATH);
+        putDataMapRequest.getDataMap().putInt(COUNT_KEY, count++);
+        PutDataRequest request = putDataMapRequest.asPutDataRequest();
+
+
+        if (!mGoogleApiClient.isConnected()) {
+            return;
+        }
+        Wearable.DataApi.putDataItem(mGoogleApiClient, request)
+                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+                    @Override
+                    public void onResult(DataApi.DataItemResult dataItemResult) {
+                        if (!dataItemResult.getStatus().isSuccess()) {
+                            Log.e(TAG, "ERROR: failed to putDataItem, status code: "
+                                    + dataItemResult.getStatus().getStatusCode());
+                        }
+                    }
+                });*/
+
+
+        PutDataMapRequest dataMapReq = PutDataMapRequest.create(IMAGE_PATH);
+        dataMapReq.getDataMap().putAsset(IMAGE_KEY, asset);
+        dataMapReq.getDataMap().putLong("time", new Date().getTime());
+        PutDataRequest request = dataMapReq.asPutDataRequest();
+        LOGD(TAG, "Generating Asset Image : " + request);
         Wearable.DataApi.putDataItem(mGoogleApiClient, request)
                 .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
                     @Override
                     public void onResult(DataApi.DataItemResult dataItemResult) {
                         LOGD(TAG, "Sending image was successful: " + dataItemResult.getStatus()
                                 .isSuccess());
+
+                       /* if (dataItemResult.getStatus().isSuccess()) {
+                            finish();
+                        }*/
+
                     }
                 });
 
@@ -133,7 +211,7 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
         mResolvingError = false;
         Wearable.DataApi.addListener(mGoogleApiClient, this);
         //Wearable.MessageApi.addListener(mGoogleApiClient, this);
-        //Wearable.NodeApi.addListener(mGoogleApiClient, this);
+        Wearable.NodeApi.addListener(mGoogleApiClient, this);
 
     }
 
@@ -144,7 +222,26 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
 
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
+        LOGD(TAG, "onDataChanged(): " + dataEvents);
 
+        final List<DataEvent> events = FreezableUtils.freezeIterable(dataEvents);
+        dataEvents.close();
+        for (DataEvent event : events) {
+            if (event.getType() == DataEvent.TYPE_CHANGED) {
+                String path = event.getDataItem().getUri().getPath();
+                if (COUNT_PATH.equals(path)) {
+                    LOGD(TAG, "Count: " + count);
+                } else if(IMAGE_PATH.equals(path))
+                {
+                    LOGD(TAG, "image");
+                }
+                else
+                {
+                    LOGD(TAG, "Unrecognized path: " + path);
+                }
+
+            }
+        }
     }
 
     @Override
@@ -190,5 +287,27 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
                 }
             }
         }
+    }
+
+    @Override
+    public void onPeerConnected(final Node peer) {
+        LOGD(TAG, "onPeerConnected: " + peer);
+    }
+
+    @Override
+    public void onPeerDisconnected(final Node peer) {
+        LOGD(TAG, "onPeerDisconnected: " + peer);
+    }
+
+    private Collection<String> getNodes() {
+        LOGD(TAG,"nnnnnnodes gewt");
+        HashSet<String> results= new HashSet<String>();
+        NodeApi.GetConnectedNodesResult nodes =
+                Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
+        for (Node node : nodes.getNodes()) {
+            results.add(node.getId());
+        }
+        LOGD(TAG,"nnnnnnodes2 gewt"+results.toString());
+        return results;
     }
 }

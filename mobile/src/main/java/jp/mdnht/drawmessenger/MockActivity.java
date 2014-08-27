@@ -53,6 +53,8 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
     private static final String START_ACTIVITY_PATH = "/start-activity";
     private static final String IMAGE_PATH = "/image";
     private static final String IMAGE_KEY = "photo";
+    private static final String COUNT_PATH = "/count";
+    private static final String COUNT_KEY = "count";
 
     //google api
     private GoogleApiClient mGoogleApiClient;
@@ -193,12 +195,15 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
                     Asset photo = dataMapItem.getDataMap()
                             .getAsset(IMAGE_KEY);
                     final Bitmap bitmap = loadBitmapFromAsset(mGoogleApiClient, photo);
+                    LOGD(TAG, bitmap.toString());
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             Log.d(TAG, "Setting background image..");
                             ImageView iv = (ImageView) findViewById(R.id.imageView);
-                            iv.setImageBitmap(bitmap);
+                            //
+                            // iv.setImageResource(R.drawable.common_signin_btn_icon_dark);
+                            iv.setImageDrawable(new BitmapDrawable(getResources(),bitmap));
                         }
                     });
                 } else {
