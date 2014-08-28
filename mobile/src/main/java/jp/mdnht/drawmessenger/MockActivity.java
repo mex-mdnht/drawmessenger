@@ -262,7 +262,9 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         push.setChannel(PUSH_CHANNEL);
         JSONObject data = new JSONObject();
         try {
+            data.put("action","jp.mdnht.drawmessenger.CREATE_NOTIFICATION");
             data.put("url",url);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

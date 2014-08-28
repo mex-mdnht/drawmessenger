@@ -148,9 +148,9 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
                         LOGD(TAG, "Sending image was successful: " + dataItemResult.getStatus()
                                 .isSuccess());
 
-                       /* if (dataItemResult.getStatus().isSuccess()) {
+                       if (dataItemResult.getStatus().isSuccess()) {
                             finish();
-                        }*/
+                        }
 
                     }
                 });
