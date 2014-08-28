@@ -3,6 +3,7 @@ package jp.mdnht.drawmessenger;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
@@ -37,7 +38,9 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +63,9 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
 
     private static final String TAG = "MockActivity";
     private static final String PUSH_CHANNEL = "M5S";
+
+    public static final String ACTION_OPEN_WEAR_APP = "jp.mdnht.drawmessenger.OPEN_WEAR_APP";
+    public static final String ACTION_SEND_NOTIFICATION = "jp.mdnht.drawmessenger.SEND_NOTIFICATION";
 
     /** Request code for launching the Intent to resolve Google Play services errors. */
     private static final int REQUEST_RESOLVE_ERROR = 1000;
@@ -124,18 +130,26 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
 
     public void onSendNotificationClicked(View view) {
         LOGD(TAG,"sendNotificationClicked");
-        createNotificationAndSend();
+        createNotificationAndSend(BitmapFactory.decodeResource(getResources(),R.drawable.common_signin_btn_icon_dark));
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         LOGD(TAG,"nnnnnnnnnnnnnnwwww intnt");
         super.onNewIntent(intent);
-        new StartWearableActivityTask().execute();
-
+        String action = intent.getAction();
+        if(action == ACTION_OPEN_WEAR_APP)
+        {
+            new StartWearableActivityTask().execute();
+        }
+        if(action == ACTION_SEND_NOTIFICATION)
+        {
+            String imageUrl = intent.getExtras().getString("url");
+            new DownloadImageTask().execute(imageUrl);
+        }
     }
 
-    private void createNotificationAndSend(){
+    private void createNotificationAndSend(Bitmap imageBitmap){
         int notificationId = 001;
 
         //main notification
@@ -147,8 +161,7 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         //extender for page2
         WearableExtender extender2 = new WearableExtender()
                 .setHintShowBackgroundOnly(true)
-                .setBackground(BitmapFactory.decodeResource(this.getResources(),
-                        R.drawable.ic_plusone_medium_off_client));
+                .setBackground(imageBitmap);
         // Create second page notification
         Notification secondPageNotification = new NotificationCompat.Builder(this)
                 .setContentTitle("pege2")
@@ -158,9 +171,14 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
 
         // Create an intent for the reply action
         Intent actionIntent = new Intent(this, MockActivity.class);
+        actionIntent.setAction(ACTION_OPEN_WEAR_APP);
         PendingIntent actionPendingIntent =
                 PendingIntent.getActivity(this, 0, actionIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
+        /*Intent actionIntent = new Intent(this, MessageReceiver.class);
+        actionIntent.setAction("jp.mdnht.drawmessenger.OPEN_WEAR_APP");
+        PendingIntent actionPendingIntent =
+                PendingIntent.getBroadcast(this, 1, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT);*/
 
         // Create the action
         NotificationCompat.Action action =
@@ -389,19 +407,79 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         return BitmapFactory.decodeStream(assetInputStream);
     }
 
-    private InputStream extractStreamFromAsset(GoogleApiClient apiClient, Asset asset) {
-        if (asset == null) {
-            throw new IllegalArgumentException("Asset must be non-null");
+    /*private void createNotificationAndSend(Context context,Bitmap imageBitmap){
+        int notificationId = 001;
+
+
+
+        //main notification
+        NotificationCompat.Builder notifBulder = new NotificationCompat.Builder(context)
+                .setContentTitle("メッセージ")
+                .setContentText("ひらく")
+                .setSmallIcon(R.drawable.common_signin_btn_icon_dark);
+
+        //extender for page2
+        NotificationCompat.WearableExtender extender2 = new NotificationCompat.WearableExtender()
+                .setHintShowBackgroundOnly(true)
+                .setBackground(imageBitmap);
+        // Create second page notification
+        Notification secondPageNotification = new NotificationCompat.Builder(context)
+                .setContentTitle("pege2")
+                .setContentText("test")
+                .extend(extender2)
+                .build();
+
+        // Create an intent for the reply action
+        Intent actionIntent = new Intent(context, MockActivity.class);
+        PendingIntent actionPendingIntent =
+                PendingIntent.getActivity(context, 0, actionIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Create the action
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(R.drawable.common_signin_btn_icon_disabled_focus_light,"launch wear app", actionPendingIntent)
+                        .build();
+
+
+        // Create a WearableExtender to add functionality for wearables
+        Notification notif =
+                new NotificationCompat.WearableExtender()
+                        .addPage(secondPageNotification)
+                        .addAction(action)
+                        .extend(notifBulder)
+                        .build();
+
+        // Get an instance of the NotificationManager service
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(context);
+
+        // Build the notification and issues it with notification manager.
+        notificationManager.notify(notificationId, notif);
+    }*/
+
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+
+        public DownloadImageTask() {
+
         }
 
-        InputStream assetInputStream = Wearable.DataApi.getFdForAsset(
-                apiClient, asset).await().getInputStream();
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap bmp = null;
 
-        if (assetInputStream == null) {
-            Log.w(TAG, "Requested an unknown Asset.");
-            return null;
+            InputStream in = null;
+            try {
+                in = new URL(urldisplay).openStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            bmp = BitmapFactory.decodeStream(in);
+
+            return bmp;
         }
 
-        return assetInputStream;
+        protected void onPostExecute(Bitmap result) {
+            createNotificationAndSend(result);
+        }
     }
 }

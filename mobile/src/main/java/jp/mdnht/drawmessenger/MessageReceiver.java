@@ -29,20 +29,28 @@ public class MessageReceiver extends BroadcastReceiver {
     private static final String TAG = "MessageReceiver";
     @Override
     public void onReceive(Context context, Intent intent) {
-        try {
-            String action = intent.getAction();
-            Bundle b = intent.getExtras();
-            String channel = b.getString("com.parse.Channel");
-            JSONObject json = new JSONObject(b.getString("com.parse.Data"));
+        String action = intent.getAction();
 
-            Log.d(TAG, "got action " + action + " on channel " + channel + " with:");
-            String imageUrl = null;
-            imageUrl = json.getString("url");
-            DownloadImageTask loadImageTask= new DownloadImageTask(context);
-            loadImageTask.doInBackground(imageUrl);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            try {
+
+                Bundle b = intent.getExtras();
+                String channel = b.getString("com.parse.Channel");
+                JSONObject json = new JSONObject(b.getString("com.parse.Data"));
+
+                Log.d(TAG, "got action " + action + " on channel " + channel + " with:");
+                String imageUrl = null;
+                imageUrl = json.getString("url");
+                /*DownloadImageTask loadImageTask= new DownloadImageTask(context);
+                loadImageTask.doInBackground(imageUrl);*/
+                Intent aintent = new Intent(context.getApplicationContext(), MockActivity.class);
+                aintent.setAction(MockActivity.ACTION_SEND_NOTIFICATION);
+                aintent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                aintent.putExtra("url", imageUrl);
+                context.startActivity(aintent);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
     }
 
