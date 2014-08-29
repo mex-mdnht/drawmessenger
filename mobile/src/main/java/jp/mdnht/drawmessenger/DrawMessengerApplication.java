@@ -16,6 +16,6 @@ public class DrawMessengerApplication extends Application {
         super.onCreate();
         Parse.initialize(this, "oLUbEltAQXiR5SpY6ByxKlAHgD4AImGacOTa6QNw", "NhAVSxAbP07XCLNXpUEhcWHkUT0ay4xJxgtBYRTY");
         PushService.setDefaultPushCallback(this, MockActivity.class);
-        //PushService.subscribe(this, "M5S", MockActivity.class);
+        PushService.subscribe(this, "M5S", MockActivity.class);
     }
 }

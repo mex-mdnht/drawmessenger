@@ -61,7 +61,7 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
     private ProgressBar progressBar;
     private Button sendDataButton;
 
-    private static final int EXIT_DELAY = 5000;
+    private static final int EXIT_DELAY = 7000;
     private CountDownTimer timer = null;
 
     /** Request code for launching the Intent to resolve Google Play services errors. */
@@ -90,23 +90,22 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
 
                     @Override
                     public void onFinish() {
-                       // sendPhoto(toAsset(makeBitmapFromSurfaceView()));
+                       sendPhoto(toAsset(drawSurfaceView.getmBitmap()));
                     }
                 };
                 timer.start();
 
 
-                sendDataButton = (Button)findViewById(R.id.send_data_button);
+                /*sendDataButton = (Button)findViewById(R.id.send_data_button);
                 sendDataButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
                         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_plusone_medium_off_client);
                         Asset asset= toAsset(drawSurfaceView.getmBitmap());
-                        //Asset asset= toAsset(bitmap);
                         sendPhoto(asset);
                     }
-                });
+                });*/
 
             }
         });

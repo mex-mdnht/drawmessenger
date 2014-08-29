@@ -19,7 +19,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true" />
 
-    <Button
+    <!--<Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,6 +27,6 @@
         android:id="@+id/send_data_button"
         android:layout_above="@+id/progressBar"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true" />-->
 
 </RelativeLayout>

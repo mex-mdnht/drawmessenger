@@ -2,6 +2,7 @@ package jp.mdnht.drawmessenger;
 
 import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -76,6 +77,8 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
     private static final String COUNT_PATH = "/count";
     private static final String COUNT_KEY = "count";
 
+    private int notificationId = 0;
+
     //google api
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
@@ -140,6 +143,8 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         String action = intent.getAction();
         if(action == ACTION_OPEN_WEAR_APP)
         {
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            manager.cancel(notificationId);
             new StartWearableActivityTask().execute();
         }
         if(action == ACTION_SEND_NOTIFICATION)
@@ -150,13 +155,14 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
     }
 
     private void createNotificationAndSend(Bitmap imageBitmap){
-        int notificationId = 001;
-
         //main notification
         NotificationCompat.Builder notifBulder = new NotificationCompat.Builder(this)
                 .setContentTitle("メッセージ")
                 .setContentText("ひらく")
-                .setSmallIcon(R.drawable.common_signin_btn_icon_dark);
+                .setSound(Uri.parse("android.resource://jp.mdnht.drawmessenger/raw/yo"))
+                .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS)
+                .setSmallIcon(R.drawable.common_signin_btn_icon_dark)
+                .setLargeIcon(imageBitmap);
 
         //extender for page2
         WearableExtender extender2 = new WearableExtender()
@@ -185,7 +191,6 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
                 new NotificationCompat.Action.Builder(R.drawable.common_signin_btn_icon_disabled_focus_light,"launch wear app", actionPendingIntent)
                         .build();
 
-
         // Create a WearableExtender to add functionality for wearables
         Notification notif =
                 new WearableExtender()
@@ -194,17 +199,13 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
                         .extend(notifBulder)
                         .build();
 
-
-
-
-
-
         // Get an instance of the NotificationManager service
         NotificationManagerCompat notificationManager =
                 NotificationManagerCompat.from(this);
 
         // Build the notification and issues it with notification manager.
         notificationManager.notify(notificationId, notif);
+        //notificationId ++;
     }
 
     @Override
@@ -282,6 +283,8 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         try {
             data.put("action","jp.mdnht.drawmessenger.CREATE_NOTIFICATION");
             data.put("url",url);
+            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+            data.put("fromId", installation.getInstallationId());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -407,55 +410,7 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         return BitmapFactory.decodeStream(assetInputStream);
     }
 
-    /*private void createNotificationAndSend(Context context,Bitmap imageBitmap){
-        int notificationId = 001;
 
-
-
-        //main notification
-        NotificationCompat.Builder notifBulder = new NotificationCompat.Builder(context)
-                .setContentTitle("メッセージ")
-                .setContentText("ひらく")
-                .setSmallIcon(R.drawable.common_signin_btn_icon_dark);
-
-        //extender for page2
-        NotificationCompat.WearableExtender extender2 = new NotificationCompat.WearableExtender()
-                .setHintShowBackgroundOnly(true)
-                .setBackground(imageBitmap);
-        // Create second page notification
-        Notification secondPageNotification = new NotificationCompat.Builder(context)
-                .setContentTitle("pege2")
-                .setContentText("test")
-                .extend(extender2)
-                .build();
-
-        // Create an intent for the reply action
-        Intent actionIntent = new Intent(context, MockActivity.class);
-        PendingIntent actionPendingIntent =
-                PendingIntent.getActivity(context, 0, actionIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // Create the action
-        NotificationCompat.Action action =
-                new NotificationCompat.Action.Builder(R.drawable.common_signin_btn_icon_disabled_focus_light,"launch wear app", actionPendingIntent)
-                        .build();
-
-
-        // Create a WearableExtender to add functionality for wearables
-        Notification notif =
-                new NotificationCompat.WearableExtender()
-                        .addPage(secondPageNotification)
-                        .addAction(action)
-                        .extend(notifBulder)
-                        .build();
-
-        // Get an instance of the NotificationManager service
-        NotificationManagerCompat notificationManager =
-                NotificationManagerCompat.from(context);
-
-        // Build the notification and issues it with notification manager.
-        notificationManager.notify(notificationId, notif);
-    }*/
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 
