@@ -49,13 +49,14 @@ public class MessageReceiver extends BroadcastReceiver {
                 imageUrl = json.getString("url");
                 String fromId = json.getString("fromId");
                 Log.d(TAG, "fromID " + fromId);
-                if(!fromId.equals(installation.getInstallationId())) {
+                if(fromId.equals(installation.getInstallationId())) {
 
-                    Intent aintent = new Intent(context.getApplicationContext(), MockActivity.class);
-                    aintent.setAction(MockActivity.ACTION_SEND_NOTIFICATION);
-                    aintent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    Intent aintent = new Intent(context.getApplicationContext(), DMessengerListenerService.class);
+                    aintent.setAction(DMessengerListenerService.ACTION_SEND_NOTIFICATION);
+                    //aintent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     aintent.putExtra("url", imageUrl);
-                    context.startActivity(aintent);
+                    //context.startActivity(aintent);
+                    context.startService(aintent);
                 }
 
             } catch (JSONException e) {

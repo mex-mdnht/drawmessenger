@@ -1,6 +1,8 @@
 package jp.mdnht.drawmessenger;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -51,8 +53,8 @@ import java.util.TimerTask;
 public class DrawActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener, NodeApi.NodeListener {
     private static  final String TAG = "DrawActivity";
 
-    private static final String IMAGE_PATH = "/image";
-    private static final String IMAGE_KEY = "photo";
+    private static final String SENDING_IMAGE_PATH = "/image_sending";
+    private static final String IMAGE_KEY = "image";
     private static final String COUNT_PATH = "/count";
     private static final String COUNT_KEY = "count";
     private int count = 0;
@@ -129,13 +131,16 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
         if (!mResolvingError) {
             mGoogleApiClient.connect();
         }
+
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(0);
     }
 
     /**
      * Sends the asset that was created form the photo we took by adding it to the Data Item store.
      */
     private void sendPhoto(Asset asset) {
-        PutDataMapRequest dataMapReq = PutDataMapRequest.create(IMAGE_PATH);
+        PutDataMapRequest dataMapReq = PutDataMapRequest.create(SENDING_IMAGE_PATH);
         dataMapReq.getDataMap().putAsset(IMAGE_KEY, asset);
         dataMapReq.getDataMap().putLong("time", new Date().getTime());
         PutDataRequest request = dataMapReq.asPutDataRequest();
@@ -191,7 +196,7 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
                 String path = event.getDataItem().getUri().getPath();
                 if (COUNT_PATH.equals(path)) {
                     LOGD(TAG, "Count: " + count);
-                } else if(IMAGE_PATH.equals(path))
+                } else if(SENDING_IMAGE_PATH.equals(path))
                 {
                     LOGD(TAG, "image");
                 }

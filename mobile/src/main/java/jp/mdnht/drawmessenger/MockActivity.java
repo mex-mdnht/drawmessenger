@@ -60,16 +60,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class MockActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener, NodeApi.NodeListener, DataApi.DataListener {
-
+public class MockActivity extends Activity// implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener, NodeApi.NodeListener, DataApi.DataListener {
+{
     private static final String TAG = "MockActivity";
-    private static final String PUSH_CHANNEL = "M5S";
+   /* private static final String PUSH_CHANNEL = "M5S";
 
     public static final String ACTION_OPEN_WEAR_APP = "jp.mdnht.drawmessenger.OPEN_WEAR_APP";
-    public static final String ACTION_SEND_NOTIFICATION = "jp.mdnht.drawmessenger.SEND_NOTIFICATION";
+    public static final String ACTION_SEND_NOTIFICATION = "jp.mdnht.drawmessenger.SEND_NOTIFICATION";*/
 
     /** Request code for launching the Intent to resolve Google Play services errors. */
-    private static final int REQUEST_RESOLVE_ERROR = 1000;
+    /*private static final int REQUEST_RESOLVE_ERROR = 1000;
 
     private static final String START_ACTIVITY_PATH = "/start-activity";
     private static final String IMAGE_PATH = "/image";
@@ -77,12 +77,12 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
     private static final String COUNT_PATH = "/count";
     private static final String COUNT_KEY = "count";
 
-    private int notificationId = 0;
+    private int notificationId = 0;*/
 
     //google api
-    private GoogleApiClient mGoogleApiClient;
+    /*private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
-    private Handler mHandler;
+    private Handler mHandler;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,14 +92,14 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         setContentView(R.layout.activity_mock);
 
 
-        mHandler = new Handler();
+        /*mHandler = new Handler();
 
 
          mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .build();
+                .build();*/
     }
 
 
@@ -113,10 +113,10 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
     @Override
     protected void onStart() {
         super.onStart();
-        super.onStart();
+       /* super.onStart();
         if (!mResolvingError) {
             mGoogleApiClient.connect();
-        }
+        }*/
     }
 
     @Override
@@ -132,11 +132,13 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
     }
 
     public void onSendNotificationClicked(View view) {
-        LOGD(TAG,"sendNotificationClicked");
-        createNotificationAndSend(BitmapFactory.decodeResource(getResources(),R.drawable.common_signin_btn_icon_dark));
+        //LOGD(TAG,"sendNotificationClicked");
+        //createNotificationAndSend(BitmapFactory.decodeResource(getResources(),R.drawable.common_signin_btn_icon_dark));
+        Intent aintent = new Intent(this.getApplicationContext(), DMessengerListenerService.class);
+        this.startService(aintent);
     }
 
-    @Override
+    /*@Override
     protected void onNewIntent(Intent intent) {
         LOGD(TAG,"nnnnnnnnnnnnnnwwww intnt");
         super.onNewIntent(intent);
@@ -152,9 +154,9 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
             String imageUrl = intent.getExtras().getString("url");
             new DownloadImageTask().execute(imageUrl);
         }
-    }
+    }*/
 
-    private void createNotificationAndSend(Bitmap imageBitmap){
+    /*private void createNotificationAndSend(Bitmap imageBitmap){
         //main notification
         NotificationCompat.Builder notifBulder = new NotificationCompat.Builder(this)
                 .setContentTitle("メッセージ")
@@ -181,10 +183,10 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         PendingIntent actionPendingIntent =
                 PendingIntent.getActivity(this, 0, actionIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
-        /*Intent actionIntent = new Intent(this, MessageReceiver.class);
+        *//*Intent actionIntent = new Intent(this, MessageReceiver.class);
         actionIntent.setAction("jp.mdnht.drawmessenger.OPEN_WEAR_APP");
         PendingIntent actionPendingIntent =
-                PendingIntent.getBroadcast(this, 1, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT);*/
+                PendingIntent.getBroadcast(this, 1, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT);*//*
 
         // Create the action
         NotificationCompat.Action action =
@@ -206,9 +208,9 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         // Build the notification and issues it with notification manager.
         notificationManager.notify(notificationId, notif);
         //notificationId ++;
-    }
+    }*/
 
-    @Override
+   /* @Override
     public void onPeerConnected(final Node peer) {
         LOGD(TAG, "onPeerConnected: " + peer);
     }
@@ -297,9 +299,7 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
 
         @Override
         protected Void doInBackground(Void... args) {
-            LOGD(TAG,"nnnnnnnnnnnnnnwwww dddddddddddddd");
             Collection<String> nodes = getNodes();
-            LOGD(TAG,"node is"+nodes.toString());
             for (String node : nodes) {
                 sendStartActivityMessage(node);
             }
@@ -322,10 +322,10 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
                 }
         );
     }
-
-    /**
+/*
+    *//**//**
      * As simple wrapper around Log.d
-     */
+     *//*
     private static void LOGD(final String tag, String message) {
         if (Log.isLoggable(tag, Log.INFO)) {
             Log.d(tag, message);
@@ -379,21 +379,19 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
     }
 
     private Collection<String> getNodes() {
-        LOGD(TAG,"nnnnnnodes gewt");
         HashSet <String>results= new HashSet<String>();
         NodeApi.GetConnectedNodesResult nodes =
                 Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
         for (Node node : nodes.getNodes()) {
             results.add(node.getId());
         }
-        LOGD(TAG,"nnnnnnodes2 gewt"+results.toString());
         return results;
     }
 
-    /**
+    *//**
      * Extracts {@link android.graphics.Bitmap} data from the
      * {@link com.google.android.gms.wearable.Asset}
-     */
+     *//*
     private Bitmap loadBitmapFromAsset(GoogleApiClient apiClient, Asset asset) {
         if (asset == null) {
             throw new IllegalArgumentException("Asset must be non-null");
@@ -436,5 +434,5 @@ public class MockActivity extends Activity implements GoogleApiClient.Connection
         protected void onPostExecute(Bitmap result) {
             createNotificationAndSend(result);
         }
-    }
+    }*/
 }

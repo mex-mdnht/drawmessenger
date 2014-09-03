@@ -44,7 +44,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
-        </receiver>
+        </receiver>in
         <receiver
             android:name=".MessageReceiver"
             android:exported="false" >
@@ -63,6 +63,14 @@
             </intent-filter>
         </receiver>
 
+        <service
+            android:name=".DMessengerListenerService"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
