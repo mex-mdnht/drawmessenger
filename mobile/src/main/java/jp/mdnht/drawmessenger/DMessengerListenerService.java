@@ -46,15 +46,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+import static jp.mdnht.drawmessenger.common.CommonConstants.*;
+import static jp.mdnht.drawmessenger.common.GeneralUtil.*;
+
 public class DMessengerListenerService extends WearableListenerService {
 
     private static final String TAG = "DMessengerListener";
-    private static final String PUSH_CHANNEL = "M5S";
-    private static final String START_ACTIVITY_PATH = "/start-activity";
-    public static final String ACTION_SEND_NOTIFICATION = "jp.mdnht.drawmessenger.SEND_NOTIFICATION";
-    private static final String RECEIVED_IMAGE_PATH = "/image_received";
-    private static final String SENDING_IMAGE_PATH = "/image_sending";
-    private static final String IMAGE_KEY = "image";
+
 
 
     private GoogleApiClient mGoogleApiClient;
@@ -275,15 +273,6 @@ public class DMessengerListenerService extends WearableListenerService {
                                     .isSuccess());
                         }
                     });
-        }
-    }
-
-    /**
-     * As simple wrapper around Log.d
-     */
-    private static void LOGD(final String tag, String message) {
-        if (Log.isLoggable(tag, Log.INFO)) {
-            Log.d(tag, message);
         }
     }
 }

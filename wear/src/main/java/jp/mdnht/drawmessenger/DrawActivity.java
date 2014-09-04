@@ -48,15 +48,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import static jp.mdnht.drawmessenger.common.CommonConstants.*;
+import static jp.mdnht.drawmessenger.common.GeneralUtil.*;
 
 
 public class DrawActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, DataApi.DataListener, GoogleApiClient.OnConnectionFailedListener, NodeApi.NodeListener {
     private static  final String TAG = "DrawActivity";
 
-    private static final String SENDING_IMAGE_PATH = "/image_sending";
-    private static final String IMAGE_KEY = "image";
-    private static final String COUNT_PATH = "/count";
-    private int count = 0;
+
 
     private DrawSurfaceView drawSurfaceView;
     private ProgressBar progressBar;
@@ -131,7 +130,7 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
         }
 
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.cancel(0);
+        manager.cancel(NOTIFICATION_ID);
     }
 
     /**
@@ -159,14 +158,7 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
 
     }
 
-    /**
-     * As simple wrapper around Log.d
-     */
-    private static void LOGD(final String tag, String message) {
-        if (Log.isLoggable(tag, Log.INFO)) {
-            Log.d(tag, message);
-        }
-    }
+
 
     @Override
     public void onConnected(Bundle connectionHint) {
@@ -192,9 +184,7 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
         for (DataEvent event : events) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
                 String path = event.getDataItem().getUri().getPath();
-                if (COUNT_PATH.equals(path)) {
-                    LOGD(TAG, "Count: " + count);
-                } else if(SENDING_IMAGE_PATH.equals(path))
+                if(SENDING_IMAGE_PATH.equals(path))
                 {
                     LOGD(TAG, "image");
                 }

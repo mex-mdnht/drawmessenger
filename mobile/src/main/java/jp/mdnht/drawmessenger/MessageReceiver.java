@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
+import static jp.mdnht.drawmessenger.common.CommonConstants.*;
 
 public class MessageReceiver extends BroadcastReceiver {
     public MessageReceiver() {
@@ -52,7 +53,7 @@ public class MessageReceiver extends BroadcastReceiver {
                 if(fromId.equals(installation.getInstallationId())) {
 
                     Intent aintent = new Intent(context.getApplicationContext(), DMessengerListenerService.class);
-                    aintent.setAction(DMessengerListenerService.ACTION_SEND_NOTIFICATION);
+                    aintent.setAction(ACTION_SEND_NOTIFICATION);
                     //aintent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     aintent.putExtra("url", imageUrl);
                     //context.startActivity(aintent);
