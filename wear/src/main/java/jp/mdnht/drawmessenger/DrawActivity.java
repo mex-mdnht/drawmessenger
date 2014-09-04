@@ -56,14 +56,12 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
     private static final String SENDING_IMAGE_PATH = "/image_sending";
     private static final String IMAGE_KEY = "image";
     private static final String COUNT_PATH = "/count";
-    private static final String COUNT_KEY = "count";
     private int count = 0;
 
     private DrawSurfaceView drawSurfaceView;
     private ProgressBar progressBar;
     private Button sendDataButton;
 
-    private static final int EXIT_DELAY = 7000;
     private CountDownTimer timer = null;
 
     /** Request code for launching the Intent to resolve Google Play services errors. */
@@ -83,8 +81,8 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
 
                 drawSurfaceView = (DrawSurfaceView) stub.findViewById(R.id.drawSurfaceView);
                 progressBar = (ProgressBar) stub.findViewById(R.id.progressBar);
-                progressBar.setMax(EXIT_DELAY);
-                timer = new CountDownTimer(EXIT_DELAY, 100) {
+                progressBar.setMax(getResources().getInteger(R.integer.draw_timout));
+                timer = new CountDownTimer(getResources().getInteger(R.integer.draw_timout), 100) {
                     @Override
                     public void onTick(long millisUntilFinished) {
                         progressBar.setProgress((int)millisUntilFinished);
@@ -119,7 +117,7 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
     }
 
     private Bitmap makeBitmapFromSurfaceView() {
-        Bitmap b = Bitmap.createBitmap(270, 270, Bitmap.Config.ARGB_8888);
+        Bitmap b = Bitmap.createBitmap(getResources().getDimensionPixelSize(R.dimen.canvas_width), getResources().getDimensionPixelSize(R.dimen.canvas_height), Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
         drawSurfaceView.draw(c);
         return b;

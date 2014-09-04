@@ -82,13 +82,19 @@ public class DataLayerListenerService extends WearableListenerService {
     private void createNotification(Bitmap imageBitmap){
         //main notification
         NotificationCompat.Builder notifBulder = new NotificationCompat.Builder(this)
-                .setContentTitle("メッセージ")
-                .setContentText("ひらく")
+
+                .setContentTitle("タイトル")
+                .setContentText("from hogehoge")
                 .setSound(Uri.parse("android.resource://jp.mdnht.drawmessenger/raw/yo"))
                 .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS)
                 .setSmallIcon(R.drawable.common_signin_btn_icon_dark)
-                .setLargeIcon(imageBitmap);
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(imageBitmap)
+                        .setBigContentTitle("タイトル2")
+                        .setSummaryText("サマリー")
+                );
 
+/*
         //extender for page2
         NotificationCompat.WearableExtender extender2 = new NotificationCompat.WearableExtender()
                 .setHintShowBackgroundOnly(true)
@@ -98,7 +104,7 @@ public class DataLayerListenerService extends WearableListenerService {
                 .setContentTitle("pege2")
                 .setContentText("test")
                 .extend(extender2)
-                .build();
+                .build();*/
 
         // Create an intent for the reply action
         Intent actionIntent = new Intent(this, DrawActivity.class);
@@ -119,7 +125,7 @@ public class DataLayerListenerService extends WearableListenerService {
         // Create a WearableExtender to add functionality for wearables
         Notification notif =
                 new NotificationCompat.WearableExtender()
-                        .addPage(secondPageNotification)
+                        //.addPage(secondPageNotification)
                         .addAction(action)
                         .extend(notifBulder)
                         .build();
