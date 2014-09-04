@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="canvas_width">320px</dimen>
+    <dimen name="canvas_height">320px</dimen>
+</resources>

@@ -4,8 +4,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -19,10 +22,14 @@ public class DrawSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private SurfaceHolder holder;
     private float touchX = 0F;
     private float touchY = 0F;
-    private  Paint paint;
+    private Paint paint;
+    private Paint bitmapPaint;
+    private Path drawPath;
+    private Matrix transformMatrix;
     private Path path;
     private boolean isDrawing = false;
-    //private Thread looper;
+    private Rect srcRect;
+
 
     private Canvas mCanvas;
 
@@ -67,8 +74,7 @@ public class DrawSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
-
-        mBitmap = Bitmap.createBitmap(270, 270, Bitmap.Config.ARGB_8888);
+        mBitmap = Bitmap.createBitmap(getResources().getDimensionPixelSize(R.dimen.canvas_width), getResources().getDimensionPixelSize(R.dimen.canvas_height), Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
 
@@ -81,11 +87,22 @@ public class DrawSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setAntiAlias(true);
         paint.setStrokeWidth(3);
+
+        bitmapPaint = new Paint();
+        bitmapPaint.setFilterBitmap(true);
+        bitmapPaint.setDither(true);
+
+        drawPath = new Path();
         surfaceHolder.unlockCanvasAndPost(canvas);
         // スレッドの作成と実行
        // looper = new Thread(this);
        // looper.start();
+
+        srcRect = new Rect(0,0,mBitmap.getWidth(),mBitmap.getHeight());
+        transformMatrix = new Matrix();
+        transformMatrix.setRectToRect(new RectF(surfaceHolder.getSurfaceFrame()),new RectF(srcRect), Matrix.ScaleToFit.CENTER);
     }
 
     @Override
@@ -140,10 +157,11 @@ public class DrawSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         Canvas canvas = holder.lockCanvas();
         //canvas.drawColor(Color.WHITE);
        // canvas.drawCircle(touchX, touchY, 3F, paint);
+        path.transform(transformMatrix,drawPath);
+        mCanvas.drawPath(drawPath, paint);
 
-        mCanvas.drawPath(path, paint);
         //canvas.drawPath(path,paint);
-        canvas.drawBitmap(mBitmap,0,0,null);
+        canvas.drawBitmap(mBitmap, srcRect, holder.getSurfaceFrame(), bitmapPaint);
         holder.unlockCanvasAndPost(canvas);
     }
 

@@ -62,7 +62,6 @@
                 <category android:name="jp.mdnht.drawmessenger" />
             </intent-filter>
         </receiver>
-
         <service
             android:name=".DMessengerListenerService"
             android:enabled="true"
