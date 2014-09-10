@@ -13,6 +13,8 @@ public class CommonConstants {
     public static final String SENDING_IMAGE_PATH = "/image_sending";
     public static final String IMAGE_KEY = "image";
 
+    public static String FACEBOOK_APP_ID = "559549504174808";
+
     public static int NOTIFICATION_ID = 0;
 
 

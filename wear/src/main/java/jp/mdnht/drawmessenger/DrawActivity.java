@@ -150,6 +150,7 @@ public class DrawActivity extends Activity implements GoogleApiClient.Connection
                                 .isSuccess());
 
                        if (dataItemResult.getStatus().isSuccess()) {
+                           LOGD(TAG,"ffffff");
                             finish();
                         }
 
