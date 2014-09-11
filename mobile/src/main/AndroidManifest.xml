@@ -23,15 +23,25 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <meta-data
-        android:name="com.google.android.gms.version"
-        android:value="@integer/google_play_services_version"
-        />
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/app_id"
-            />
-
+            android:value="@string/app_id" />
         <activity
+            android:name=".LoginActivity"
+            android:label="@string/title_activity_login"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+        <activity
+            android:name=".ContactListActivity"
+            android:label="@string/title_activity_contact_list" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!--<activity
             android:name=".MockActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop" >
@@ -40,13 +50,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity>-->
         <activity
             android:name="com.facebook.LoginActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
         </activity>
-        
-
 
         <service android:name="com.parse.PushService" />
 
@@ -55,7 +63,8 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
-        </receiver>in
+        </receiver>
+
         <receiver
             android:name=".MessageReceiver"
             android:exported="false" >
@@ -73,6 +82,7 @@
                 <category android:name="jp.mdnht.drawmessenger" />
             </intent-filter>
         </receiver>
+
         <service
             android:name=".DMessengerListenerService"
             android:enabled="true"
@@ -81,6 +91,13 @@
                 <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
             </intent-filter>
         </service>
+
+
     </application>
 
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
 </manifest>
+
+

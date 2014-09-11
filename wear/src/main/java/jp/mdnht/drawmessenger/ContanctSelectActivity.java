@@ -40,6 +40,7 @@ public class ContanctSelectActivity extends Activity {
                         LOGD(TAG, "onTopEmptyRegionClick");
                     }
                 });
+
             }
         });
     }

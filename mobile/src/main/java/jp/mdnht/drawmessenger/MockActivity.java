@@ -74,6 +74,7 @@ public class MockActivity extends Activity// implements GoogleApiClient.Connecti
         super.onCreate(savedInstanceState);
 
 
+
         setContentView(R.layout.activity_mock);
 
     }
@@ -89,6 +90,10 @@ public class MockActivity extends Activity// implements GoogleApiClient.Connecti
     @Override
     protected void onStart() {
         super.onStart();
+        //Check user is logged in
+
+
+
 
     }
 
