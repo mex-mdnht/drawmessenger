@@ -15,9 +15,11 @@
         android:protectionLevel="signature" />
 
     <uses-permission android:name="jp.mdnht.drawmessenger.permission.C2D_MESSAGE" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
-        android:name=".DrawMessengerApplication"
+        android:name="jp.mdnht.drawmessenger.DrawMessengerApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -28,20 +30,23 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/app_id" />
+
         <activity
-            android:name=".LoginActivity"
+            android:name="jp.mdnht.drawmessenger.LoginActivity"
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
         <activity
-            android:name=".ContactListActivity"
+            android:name="jp.mdnht.drawmessenger.ContactListActivity"
             android:label="@string/title_activity_contact_list" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!--<activity
+        <!--
+        <activity
             android:name=".MockActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop" >
@@ -50,7 +55,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>-->
+        </activity>
+        -->
         <activity
             android:name="com.facebook.LoginActivity"
             android:label="@string/app_name" >
@@ -64,9 +70,8 @@
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
-
         <receiver
-            android:name=".MessageReceiver"
+            android:name="jp.mdnht.drawmessenger.MessageReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="jp.mdnht.drawmessenger.CREATE_NOTIFICATION" />
@@ -84,7 +89,7 @@
         </receiver>
 
         <service
-            android:name=".DMessengerListenerService"
+            android:name="jp.mdnht.drawmessenger.DMessengerListenerService"
             android:enabled="true"
             android:exported="true" >
             <intent-filter>
@@ -92,12 +97,10 @@
             </intent-filter>
         </service>
 
-
+        <activity
+            android:name="jp.mdnht.drawmessenger.AddContactActivity"
+            android:label="@string/title_activity_add_contact" >
+        </activity>
     </application>
 
-    <uses-permission android:name="android.permission.READ_PROFILE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
-
 </manifest>
-
-
